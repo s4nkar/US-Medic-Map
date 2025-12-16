@@ -1,4 +1,4 @@
-# 🇺🇸 US Medic Map: Interactive Health Data Map
+# US Medic Map: Interactive Health Data Map
 
 ## 💡 Project Goal and Summary
 
@@ -60,6 +60,8 @@ python manage.py migrate
 
 # 5. Start the server (API available at [http://127.0.0.1:8000](http://127.0.0.1:8000))
 python manage.py runserver
+
+```
 
 ### 2. Frontend Setup (`/frontend` directory)
 

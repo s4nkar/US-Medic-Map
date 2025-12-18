@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=medicmap
+      - POSTGRES_USER=medicuser
+      - POSTGRES_PASSWORD=medicmap123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medicuser -d medicmap"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+  # 2. pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "5050:80" # Access at http://localhost:5050
+    depends_on:
+      - db
+
+  # 3. Django Backend
+  backend:
+    build:
+      context: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app 
+      - ./data:/data
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=dev_secret_key
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=medicmap
+      - DB_USER=medicuser
+      - DB_PASSWORD=medicmap123
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 4. Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+    command: npm run dev # Runs dev server with hot reload
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules 
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/
+      # Note: In browser (client-side), we use localhost because the browser is outside Docker.
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

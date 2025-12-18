@@ -11,6 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # This copies your code from GitHub to the EC2 folder
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -20,6 +21,7 @@ jobs:
           source: "."
           target: "~/medic-map"
 
+      # This logs into the EC2 and tells Docker to run the new code
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -28,8 +30,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/medic-map
-            # Build and restart containers using the PROD file
+            # Force the build to use the production file
             docker compose -f docker-compose.prod.yml up --build -d
-            # Run migrations and collect static files
-            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate
-            docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+            # Optional: Clean up old, unused images to save space on EC2
+            docker image prune -f

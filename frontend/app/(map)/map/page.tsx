@@ -148,21 +148,16 @@ export default function MapPage() {
                                         ))}
                                     </FilterSelect>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FilterSelect
-                                            label="Year"
-                                            value={year}
-                                            onChange={(e) => setYear(Number(e.target.value))}
-                                        >
-                                            <option value="" disabled>Select Year</option>
-                                            {options?.years?.map((y: number) => (
-                                                <option key={y} value={y}>{y}</option>
-                                            ))}
-                                        </FilterSelect>
-                                        <FilterSelect label="Region Level" disabled>
-                                            <option>State</option>
-                                        </FilterSelect>
-                                    </div>
+                                    <FilterSelect
+                                        label="Year"
+                                        value={year}
+                                        onChange={(e) => setYear(Number(e.target.value))}
+                                    >
+                                        <option value="" disabled>Select Year</option>
+                                        {options?.years?.map((y: number) => (
+                                            <option key={y} value={y}>{y}</option>
+                                        ))}
+                                    </FilterSelect>
 
                                     <FilterSelect
                                         label="Demographic Group"
@@ -215,7 +210,7 @@ export default function MapPage() {
                         <button
                             onClick={() => setIsReportOpen(true)}
                             disabled={!canFetch}
-                            className={`w-full py-3 rounded-xl font-semibold text-sm transition-all shadow-md active:scale-[0.98]
+                            className={`w-full cursor-pointer py-3 rounded-xl font-semibold text-sm transition-all shadow-md active:scale-[0.98]
                                 ${canFetch
                                     ? 'bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900'
                                     : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none'

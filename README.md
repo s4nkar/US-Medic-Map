@@ -40,7 +40,7 @@ The fastest way to get the full stack (Frontend, Backend, Database) running loca
 
 1.  **Clone and Enter:**
     ```bash
-    git clone <your-repo-link>
+    git clone https://github.com/s4nkar/US-Medic-Map.git
     cd us-medic-map
     ```
 

@@ -12,6 +12,7 @@ media/
 
 # Local environment settings
 .env
+.env.prod
 
 # Database
 db.sqlite3
@@ -22,6 +23,7 @@ venv/
 ENV/
 ENV.bak/
 *.env
+
 
 # macOS system files
 .DS_Store

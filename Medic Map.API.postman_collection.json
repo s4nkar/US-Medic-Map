@@ -1,0 +1,56 @@
+{
+	"info": {
+		"_postman_id": "1def89e6-343d-4a8c-801a-4a25b3ddd324",
+		"name": "Medic Map",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "21970541"
+	},
+	"item": [
+		{
+			"name": "get MapData",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/map/map-data",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"map",
+						"map-data"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2021",
+							"disabled": true
+						},
+						{
+							"key": "topic",
+							"value": "stroke",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Dropdown Options",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/api/v1/map/options"
+			},
+			"response": []
+		}
+	]
+}

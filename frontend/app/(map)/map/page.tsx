@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterSelect } from '@/components/FilterSelect';
+import { FilterSelect } from '@/components/map/FilterSelect';
 import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info } from 'lucide-react';
 import Link from 'next/link';
 

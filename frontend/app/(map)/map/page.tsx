@@ -5,7 +5,7 @@ import { FilterSelect } from '@/components/map/FilterSelect';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useGetMapData, useGetOptions } from '@/components/map/queries/queries';
 import { ReportModal } from '@/components/map/ReportModal';
-import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info, Loader2 } from 'lucide-react';
+import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info, Loader2, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { MapDataItem } from '@/types/api';
 
@@ -98,13 +98,11 @@ export default function MapPage() {
 
                     {/* Header */}
                     <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                            <Link href="/" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 transition-colors rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                                <MapIcon size={20} />
+                        <div className="flex items-center gap-2">
+                            <Link href="/" className="w-8 h-8 bg-blue-600 hover:bg-blue-700 transition-colors rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                                <Activity size={20} />
                             </Link>
-                            <div>
-                                <h1 className="font-bold text-lg leading-tight">MedicMap Explorer</h1>
-                            </div>
+                            <h1 className="font-bold text-xl tracking-tight">MedicMap</h1>
                         </div>
                     </div>
 

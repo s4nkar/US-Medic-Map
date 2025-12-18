@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { FilterSelect } from '@/components/map/FilterSelect';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useGetMapData, useGetOptions } from '@/components/map/queries/queries';
+import { ReportModal } from '@/components/map/ReportModal';
 import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { MapDataItem } from '@/types/api';
@@ -15,18 +16,29 @@ export default function MapPage() {
     const [demographic, setDemographic] = useState<string>("");
     const [indicator, setIndicator] = useState<string>("");
 
+    // Modal State
+    const [isReportOpen, setIsReportOpen] = useState(false);
+
     const { data: options, isLoading: isLoadingOptions } = useGetOptions(topic || undefined);
 
     // Set defaults when options load
     useEffect(() => {
         if (options) {
-            if (options.topics?.length > 0 && !topic) setTopic(options.topics[0]);
+            if (options.topics?.length > 0 && !topic) {
+                const strokeTopic = options.topics.find((t: string) => t.toLowerCase().includes("stroke"));
+                setTopic(strokeTopic || options.topics[0]);
+            }
             if (options.years?.length > 0 && !year) setYear(options.years[0]);
             if (options.demographics?.length > 0 && !demographic) {
                 // Default to Overall (Aggregate) if available, otherwise first option
                 setDemographic(options.demographics.includes("Overall") ? "Overall" : options.demographics[0]);
             }
-            if (options.indicators?.length > 0 && !indicator) setIndicator(options.indicators[0]);
+            if (options.indicators?.length > 0) {
+                // If no indicator selected, OR current indicator is not valid for this topic/options
+                if (!indicator || !options.indicators.includes(indicator)) {
+                    setIndicator(options.indicators[0]);
+                }
+            }
         }
     }, [options, topic, year, demographic, indicator]);
 
@@ -44,6 +56,14 @@ export default function MapPage() {
 
     return (
         <div className="relative w-full h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden font-sans text-zinc-900 dark:text-zinc-100">
+
+            {/* Report Modal */}
+            <ReportModal
+                isOpen={isReportOpen}
+                onClose={() => setIsReportOpen(false)}
+                data={displayData}
+                filters={{ topic, year, demographic, indicator }}
+            />
 
             {/* Map Area */}
             {/* Map Area */}
@@ -92,14 +112,14 @@ export default function MapPage() {
                     <div className="flex-1 overflow-y-auto p-5 space-y-7 scrollbar-hide">
 
                         {/* Search */}
-                        <div className="relative group">
+                        {/* <div className="relative group">
                             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search zip code, county, or state..."
                                 className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             />
-                        </div>
+                        </div> */}
 
                         {/* Data Controls */}
                         <div className="space-y-5">
@@ -120,7 +140,6 @@ export default function MapPage() {
                                         value={topic}
                                         onChange={(e) => {
                                             setTopic(e.target.value);
-                                            setIndicator(""); // Reset indicator when topic changes
                                         }}
                                     >
                                         <option value="" disabled>Select Topic</option>
@@ -193,7 +212,16 @@ export default function MapPage() {
 
                     {/* Footer */}
                     <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-800">
-                        <button className="w-full py-3 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-xl font-semibold text-sm transition-all shadow-md active:scale-[0.98]">
+                        <button
+                            onClick={() => setIsReportOpen(true)}
+                            disabled={!canFetch}
+                            className={`w-full py-3 rounded-xl font-semibold text-sm transition-all shadow-md active:scale-[0.98]
+                                ${canFetch
+                                    ? 'bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900'
+                                    : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none'
+                                }
+                            `}
+                        >
                             View Detailed Report
                         </button>
                     </div>
@@ -201,20 +229,7 @@ export default function MapPage() {
             </div>
 
             {/* Map Controls */}
-            {/* <div className="absolute right-6 bottom-8 flex flex-col gap-3 z-10 pointer-events-auto">
-                <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden">
-                    <button className="w-11 h-11 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors border-b border-zinc-100 dark:border-zinc-800">
-                        <Plus size={20} />
-                    </button>
-                    <button className="w-11 h-11 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors">
-                        <Minus size={20} />
-                    </button>
-                </div>
-
-                <button className="w-11 h-11 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors">
-                    <Layers size={20} />
-                </button>
-            </div> */}
+            {/* Map Controls - Moved to inside Leaflet Map component */}
 
         </div>
     );

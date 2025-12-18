@@ -61,8 +61,51 @@ function Legend({ scale, min, max, unit }: { scale: chroma.Scale, min: number, m
     return null;
 }
 
+import { Plus, Minus, Layers } from 'lucide-react';
+
+// Custom Map Controls Component
+function MapControls({ onToggleLabels, showLabels }: { onToggleLabels: () => void, showLabels: boolean }) {
+    const map = useMap();
+
+    return (
+        <div className="leaflet-top leaflet-right">
+            <div className="leaflet-control flex flex-col gap-2 mt-4 mr-4 pointer-events-auto">
+                {/* Zoom Controls */}
+                <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden">
+                    <button
+                        onClick={() => map.zoomIn()}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors border-b border-zinc-100 dark:border-zinc-800"
+                    >
+                        <Plus size={18} />
+                    </button>
+                    <button
+                        onClick={() => map.zoomOut()}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                    >
+                        <Minus size={18} />
+                    </button>
+                </div>
+
+                {/* Layer Toggle */}
+                <button
+                    onClick={onToggleLabels}
+                    className={`w-10 h-10 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-center transition-colors
+                        ${showLabels
+                            ? 'bg-blue-600 text-white border-blue-500'
+                            : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                        }
+                    `}
+                    title="Toggle Labels"
+                >
+                    <Layers size={18} />
+                </button>
+            </div>
+        </div>
+    );
+}
+
 // Component to render labels on top of the GeoJSON layer using a custom pane
-function MapLabels() {
+function MapLabels({ show }: { show: boolean }) {
     const map = useMap();
     const [paneReady, setPaneReady] = useState(false);
 
@@ -78,7 +121,7 @@ function MapLabels() {
         setPaneReady(true);
     }, [map]);
 
-    if (!paneReady) return null;
+    if (!paneReady || !show) return null;
 
     return (
         <TileLayer
@@ -103,6 +146,7 @@ export default function ChoroplethMap({
     demographic: string
 }) {
     const [geoJson, setGeoJson] = useState<any>(null);
+    const [showLabels, setShowLabels] = useState(true);
 
     useEffect(() => {
         fetch(GEOJSON_URL)
@@ -192,12 +236,12 @@ export default function ChoroplethMap({
                 </div>
             `, {
                 sticky: true,
-                className: '!bg-zinc-900/95 !backdrop-blur-xl !shadow-2xl !border !border-zinc-700/50 !p-3 !rounded-xl !text-white' // Force overrides
+                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-3 !rounded-xl !text-white' // Reduced blur for performance
             });
         } else {
             layer.bindTooltip(`<div class="font-sans text-white font-bold">${stateName}: No Data</div>`, {
                 sticky: true,
-                className: '!bg-zinc-900/95 !backdrop-blur-xl !shadow-2xl !border !border-zinc-700/50 !p-2 !rounded-lg'
+                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-2 !rounded-lg' // Reduced blur for performance
             });
         }
 
@@ -247,7 +291,8 @@ export default function ChoroplethMap({
             )}
 
             {/* Render labels ON TOP of GeoJSON */}
-            <MapLabels />
+            <MapLabels show={showLabels} />
+            <MapControls onToggleLabels={() => setShowLabels(!showLabels)} showLabels={showLabels} />
 
             {data.length > 0 && <Legend scale={colorScale} min={min} max={max} unit={unit} />}
         </MapContainer>

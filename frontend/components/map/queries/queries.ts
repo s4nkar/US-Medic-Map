@@ -7,16 +7,16 @@ import {
     useQuery
 } from '@tanstack/react-query';
 
-export const useGetOptions = () => {
+export const useGetOptions = (topic?: string) => {
     return useQuery({
-        queryKey: ['options'],
-        queryFn: async () => getOptions()
+        queryKey: ['options', topic],
+        queryFn: async () => getOptions(topic)
     });
 };
 
-export const useGetMapData = () => {
+export const useGetMapData = (topic?: string, year?: number, demographic?: string, indicator?: string) => {
     return useQuery({
-        queryKey: ['mapData'],
-        queryFn: async () => getMapData()
+        queryKey: ['mapData', topic, year, demographic, indicator],
+        queryFn: async () => getMapData({ topic, year, demographic, indicator })
     });
 };

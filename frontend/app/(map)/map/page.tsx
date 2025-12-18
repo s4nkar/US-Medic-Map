@@ -1,28 +1,74 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { FilterSelect } from '@/components/map/FilterSelect';
-import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info } from 'lucide-react';
+import LeafletMap from '@/components/map/LeafletMap';
+import { useGetMapData, useGetOptions } from '@/components/map/queries/queries';
+import { Filter, Layers, Map as MapIcon, Search, Plus, Minus, Info, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { MapDataItem } from '@/types/api';
 
 export default function MapPage() {
+    // State for filters
+    const [topic, setTopic] = useState<string>("");
+    const [year, setYear] = useState<number | "">("");
+    const [demographic, setDemographic] = useState<string>("");
+    const [indicator, setIndicator] = useState<string>("");
+
+    const { data: options, isLoading: isLoadingOptions } = useGetOptions(topic || undefined);
+
+    // Set defaults when options load
+    useEffect(() => {
+        if (options) {
+            if (options.topics?.length > 0 && !topic) setTopic(options.topics[0]);
+            if (options.years?.length > 0 && !year) setYear(options.years[0]);
+            if (options.demographics?.length > 0 && !demographic) {
+                // Default to Overall (Aggregate) if available, otherwise first option
+                setDemographic(options.demographics.includes("Overall") ? "Overall" : options.demographics[0]);
+            }
+            if (options.indicators?.length > 0 && !indicator) setIndicator(options.indicators[0]);
+        }
+    }, [options, topic, year, demographic, indicator]);
+
+    // Fetch map data based on current filters
+    // We only fetch if we have at least some basic filters set to avoid massive unaggregated data
+    const canFetch = !!topic && !!year;
+    const { data: mapData, isLoading: isLoadingMapData } = useGetMapData(
+        topic || undefined,
+        year ? Number(year) : undefined,
+        demographic || undefined,
+        indicator || undefined
+    );
+
+    const displayData: MapDataItem[] = Array.isArray(mapData) ? mapData : [];
+
     return (
         <div className="relative w-full h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden font-sans text-zinc-900 dark:text-zinc-100">
 
-            {/* Map Placeholder Area */}
-            <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-                <div className="text-center opacity-40 select-none pointer-events-none">
-                    <MapIcon size={80} className="mx-auto mb-6 text-zinc-300 dark:text-zinc-700" />
-                    <h2 className="text-3xl font-bold mb-2 tracking-tight text-zinc-400 dark:text-zinc-600">Map Visualization Area</h2>
-                    <p className="text-zinc-400 dark:text-zinc-600">Integration pending...</p>
-                </div>
-                {/* Grid pattern to simulate map texture */}
-                <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                        backgroundImage: 'linear-gradient(#00000008 1px, transparent 1px), linear-gradient(90deg, #00000008 1px, transparent 1px)',
-                        backgroundSize: '40px 40px'
-                    }}
-                ></div>
+            {/* Map Area */}
+            {/* Map Area */}
+            <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-zinc-900">
+                <LeafletMap
+                    // FORCE RE-MOUNT ON FILTER CHANGE
+                    // This ensures Leaflet instance is fresh and event listeners (mouseover/out)
+                    // have the correct closure for the new data.
+                    key={`${topic}-${year}-${indicator}-${demographic}`}
+                    data={displayData}
+                    topic={topic}
+                    year={year}
+                    indicator={indicator}
+                    demographic={demographic}
+                />
+
+                {(!canFetch) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-100/50 dark:bg-zinc-900/50 z-10 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-2xl max-w-md text-center">
+                            <Info className="mx-auto mb-4 text-blue-500" size={32} />
+                            <h3 className="text-xl font-bold mb-2">Select Filters</h3>
+                            <p className="text-zinc-500 dark:text-zinc-400">Please select a Topic and Year to visualize data.</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Floating Sidebar */}
@@ -62,32 +108,68 @@ export default function MapPage() {
                                 <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800"></div>
                             </div>
 
-                            <FilterSelect label="Topic" icon={<Filter size={14} />}>
-                                <option>Asthma Prevalence</option>
-                                <option>Diabetes Monitoring</option>
-                                <option>Cardiac Health</option>
-                                <option>Mental Health Services</option>
-                            </FilterSelect>
+                            {isLoadingOptions ? (
+                                <div className="flex justify-center py-4 text-zinc-400">
+                                    <Loader2 className="animate-spin" />
+                                </div>
+                            ) : (
+                                <>
+                                    <FilterSelect
+                                        label="Topic"
+                                        icon={<Filter size={14} />}
+                                        value={topic}
+                                        onChange={(e) => {
+                                            setTopic(e.target.value);
+                                            setIndicator(""); // Reset indicator when topic changes
+                                        }}
+                                    >
+                                        <option value="" disabled>Select Topic</option>
+                                        {options?.topics?.map((t: string) => (
+                                            <option key={t} value={t}>{t}</option>
+                                        ))}
+                                    </FilterSelect>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <FilterSelect label="Year">
-                                    <option>2024</option>
-                                    <option>2023</option>
-                                    <option>2022</option>
-                                </FilterSelect>
-                                <FilterSelect label="Region Level">
-                                    <option>County</option>
-                                    <option>State</option>
-                                    <option>Zip Code</option>
-                                </FilterSelect>
-                            </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FilterSelect
+                                            label="Year"
+                                            value={year}
+                                            onChange={(e) => setYear(Number(e.target.value))}
+                                        >
+                                            <option value="" disabled>Select Year</option>
+                                            {options?.years?.map((y: number) => (
+                                                <option key={y} value={y}>{y}</option>
+                                            ))}
+                                        </FilterSelect>
+                                        <FilterSelect label="Region Level" disabled>
+                                            <option>State</option>
+                                        </FilterSelect>
+                                    </div>
 
-                            <FilterSelect label="Demographic (Optional)">
-                                <option>All Demographics</option>
-                                <option>Age 0-18</option>
-                                <option>Age 19-64</option>
-                                <option>Age 65+</option>
-                            </FilterSelect>
+                                    <FilterSelect
+                                        label="Demographic Group"
+                                        value={demographic}
+                                        onChange={(e) => setDemographic(e.target.value)}
+                                    >
+                                        {options?.demographics?.includes('Overall') && (
+                                            <option value="Overall">All Patients (Aggregate)</option>
+                                        )}
+                                        {options?.demographics?.filter((d: string) => d !== 'Overall').map((d: string) => (
+                                            <option key={d} value={d}>{d}</option>
+                                        ))}
+                                    </FilterSelect>
+
+                                    <FilterSelect
+                                        label="Specific Indicator"
+                                        value={indicator}
+                                        onChange={(e) => setIndicator(e.target.value)}
+                                    >
+                                        <option value="" disabled>Select Indicator</option>
+                                        {options?.indicators?.map((ind: string) => (
+                                            <option key={ind} value={ind}>{ind}</option>
+                                        ))}
+                                    </FilterSelect>
+                                </>
+                            )}
                         </div>
 
                         {/* Stats Preview Mockup */}
@@ -97,7 +179,11 @@ export default function MapPage() {
                                 <div>
                                     <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">Quick Insight</h4>
                                     <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-                                        Select a region on the map to view detailed breakdown of health metrics and historical comparisons.
+                                        Visualize {topic || 'Health Data'} across states for {year || 'selected year'}.
+                                        {isLoadingMapData && <span className="block mt-1 font-bold animate-pulse">Loading Data...</span>}
+                                        {!isLoadingMapData && displayData.length > 0 && (
+                                            <span className="block mt-1">Found {displayData.length} records.</span>
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -115,7 +201,7 @@ export default function MapPage() {
             </div>
 
             {/* Map Controls */}
-            <div className="absolute right-6 bottom-8 flex flex-col gap-3 z-10 pointer-events-auto">
+            {/* <div className="absolute right-6 bottom-8 flex flex-col gap-3 z-10 pointer-events-auto">
                 <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden">
                     <button className="w-11 h-11 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors border-b border-zinc-100 dark:border-zinc-800">
                         <Plus size={20} />
@@ -128,7 +214,7 @@ export default function MapPage() {
                 <button className="w-11 h-11 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors">
                     <Layers size={20} />
                 </button>
-            </div>
+            </div> */}
 
         </div>
     );

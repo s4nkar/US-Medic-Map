@@ -9,7 +9,7 @@ The **US Medic Map** is a data visualization tool designed for health plan execu
 
 ## 💡 Project Summary
 
-This application visualizes the burden of heart disease across the United States. By mapping Medicare claims data, it allows decision-makers to:
+This application visualizes the burden of heart disease and stroke across the United States. By mapping Medicare claims data, it allows decision-makers to:
 * **Identify High-Need Areas:** Spot states with the highest hospitalization rates at a glance.
 * **Prioritize Resources:** Direct clinical vendors and interventions to the regions that need them most.
 * **Interactive Exploration:** Filter by specific health indicators and view precise metrics via map tooltips.
@@ -18,7 +18,7 @@ This application visualizes the burden of heart disease across the United States
 
 ## 📊 Data Source
 The application utilizes the **CDC - Surveillance of Cardiovascular Disease Indicators** dataset. 
-* **Source:** [Kaggle - Cardiovascular Disease Indicators](https://www.kaggle.com/datasets/thedevastator/surveillance-of-cardiovascular-disease-indicato)
+* **Source:** [Kaggle - Cardiovascular Disease Indicators](https://www.kaggle.com/datasets/imtkaggleteam/medicare-and-medicaid/data?select=CMS.csv)
 * **Focus:** State-level Heart Failure and Stroke hospitalization rates.
 
 ---

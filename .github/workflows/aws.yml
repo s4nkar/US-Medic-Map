@@ -29,8 +29,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # 1. Navigate to the project folder
             cd ~/medic-map
-            # Force the build to use the production file
+          
+            # 2. Pull the latest changes from your 'master' branch
+            git pull origin master
+            
+            # 3. Build and restart the containers
             docker compose -f docker-compose.prod.yml up --build -d
-            # Optional: Clean up old, unused images to save space on EC2
+            
+            # 4. Clean up the 'ghost' images left behind by the build
             docker image prune -f

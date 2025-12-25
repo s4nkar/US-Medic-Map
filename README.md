@@ -92,6 +92,7 @@ If you prefer to run the services without Docker:
 cd backend
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py ingest_data
 python manage.py runserver
 ```
 

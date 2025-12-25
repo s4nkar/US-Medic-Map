@@ -1,11 +1,11 @@
 import axios from "axios";
 
 // This is for development purposes only
-export const host = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/";
-const API_BASE_URL = `${host}/api/v1/`;
+const host = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api$/, "").replace(/\/$/, "");
 
 const axiosInstance = axios.create({
-    baseURL: API_BASE_URL,
+    // 2. Build the versioned path exactly once
+    baseURL: `${host}/api/v1/map/`,
     headers: {
         "Content-Type": "application/json",
     },

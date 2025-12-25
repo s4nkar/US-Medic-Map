@@ -65,7 +65,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
       # Note: In browser (client-side), we use localhost because the browser is outside Docker.
     depends_on:
       - backend

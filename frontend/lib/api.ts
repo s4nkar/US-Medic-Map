@@ -16,8 +16,9 @@ export const getMapData = async (filters: any) => {
 
     // Debug log to confirm clean data
     console.log("Fetching map data with params:", params);
+    // console.log("map data :", axiosInstance, mapDataRoute);
 
-    const response = await axiosInstance.get("map/map-data/", { params });
+    const response = await axiosInstance.get(mapDataRoute, { params });
     return response.data;
 };
 

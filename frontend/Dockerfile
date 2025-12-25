@@ -9,7 +9,9 @@ RUN npm install
 # Copy code and build the production version
 COPY . .
 # We pass the API URL at build time for Next.js
-ENV NEXT_PUBLIC_API_URL=/api/
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
 # --- STAGE 2: Run ---

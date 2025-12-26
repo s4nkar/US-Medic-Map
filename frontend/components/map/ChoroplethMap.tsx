@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import chroma from 'chroma-js';
@@ -214,7 +214,7 @@ export default function ChoroplethMap({
             opacity: 1,
             color: 'white',
             dashArray: '3',
-            fillOpacity: 0.9 // Increased from 0.75 to match hover opacity to prevent "fading" effect
+            fillOpacity: 0.9
         };
     };
 
@@ -236,12 +236,12 @@ export default function ChoroplethMap({
                 </div>
             `, {
                 sticky: true,
-                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-3 !rounded-xl !text-white' // Reduced blur for performance
+                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-3 !rounded-xl !text-white'
             });
         } else {
             layer.bindTooltip(`<div class="font-sans text-white font-bold">${stateName}: No Data</div>`, {
                 sticky: true,
-                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-2 !rounded-lg' // Reduced blur for performance
+                className: '!bg-zinc-900/95 !backdrop-blur-sm !shadow-2xl !border !border-zinc-700/50 !p-2 !rounded-lg'
             });
         }
 
@@ -250,8 +250,8 @@ export default function ChoroplethMap({
             mouseover: (e) => {
                 const l = e.target;
                 l.setStyle({
-                    weight: 2, // Thinner border
-                    color: '#ffffff', // White border on hover
+                    weight: 2,
+                    color: '#ffffff',
                     dashArray: '',
                     fillOpacity: 0.9,
                 });
@@ -281,9 +281,10 @@ export default function ChoroplethMap({
             />
             {geoJson && (
                 <GeoJSON
-                    // KEY PROP IS CRITICAL: Forces re-creation of layer when filters change,
-                    // ensuring onEachFeature has access to FRESH dataMap closure.
-                    key={`${topic}-${year}-${indicator}-${demographic}`}
+                    // KEY PROP: Updated to include data status.
+                    // This creates a new component when data goes from empty -> loaded,
+                    // ensuring we render with the correct initial colors.
+                    key={`${topic}-${year}-${indicator}-${demographic}-${data.length > 0 ? 'has-data' : 'loading'}`}
                     data={geoJson}
                     style={getStyle}
                     onEachFeature={onEachFeature}

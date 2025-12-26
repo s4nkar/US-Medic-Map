@@ -1,6 +1,9 @@
 # 🗺️ US Medic Map
-**Interactive Visualization of Medicare Cardiovascular Claims**
 
+### 🏗️ System Architecture
+The application is fully containerized and orchestrated using Docker Compose, with Nginx acting as a traffic controller to ensure high performance and security.
+
+```mermaid
 graph TD
     User((User/Browser)) -->|Port 80| Nginx[Nginx Reverse Proxy]
     
@@ -11,6 +14,9 @@ graph TD
     end
 
     GitHub[GitHub Actions] -.->|CI/CD Deploy| EC2[AWS EC2 Instance]
+```
+
+**Interactive Visualization of Medicare Cardiovascular Claims**
 
 ![Medic Map Hero](./data/banner.png)
 

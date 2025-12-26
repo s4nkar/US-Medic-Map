@@ -1,6 +1,8 @@
 # 🗺️ US Medic Map
 **Interactive Visualization of Medicare Cardiovascular Claims**
 
+![Medic Map Hero](./data/banner.png)
+
 The **US Medic Map** is a data visualization tool designed for health plan executives. It identifies geographic hotspots for Cardiovascular Disease (CVD) using CDC data, enabling targeted health interventions and smarter vendor procurement.
 
 

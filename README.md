@@ -1,6 +1,17 @@
 # 🗺️ US Medic Map
 **Interactive Visualization of Medicare Cardiovascular Claims**
 
+graph TD
+    User((User/Browser)) -->|Port 80| Nginx[Nginx Reverse Proxy]
+    
+    subgraph Docker_Network [Internal Docker Network]
+        Nginx -->|/ | NextJS[Next.js Frontend]
+        Nginx -->|/api/ | Gunicorn[Gunicorn/Django]
+        Gunicorn -->|SQL| Postgres[(PostgreSQL DB)]
+    end
+
+    GitHub[GitHub Actions] -.->|CI/CD Deploy| EC2[AWS EC2 Instance]
+
 ![Medic Map Hero](./data/banner.png)
 
 The **US Medic Map** is a data visualization tool designed for health plan executives. It identifies geographic hotspots for Cardiovascular Disease (CVD) using CDC data, enabling targeted health interventions and smarter vendor procurement.

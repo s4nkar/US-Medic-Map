@@ -14,11 +14,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U medicuser -d medicmap"]
+      test: [ "CMD-SHELL", "pg_isready -U medicuser -d medicmap" ]
       interval: 10s
       retries: 5
       start_period: 10s
-      
 
   # 2. pgAdmin
   pgadmin:
@@ -36,9 +35,12 @@ services:
   backend:
     build:
       context: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py ingest_data &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./backend:/app 
+      - ./backend:/app
       - ./data:/data
     ports:
       - "8000:8000"
@@ -62,7 +64,7 @@ services:
     command: npm run dev # Runs dev server with hot reload
     volumes:
       - ./frontend:/app
-      - /app/node_modules 
+      - /app/node_modules
     ports:
       - "3000:3000"
     environment:

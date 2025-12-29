@@ -63,12 +63,18 @@ The fastest way to get the full stack (Frontend, Backend, Database) running loca
     cd us-medic-map
     ```
 
-2.  **Launch the Stack:**
+2.  **Environment Setup (Critical):**
+    ```bash
+    Backend: Copy backend/.env.example to backend/.env
+    Frontend: Copy frontend/.env.example to frontend/.env
+    ```
+
+3.  **Launch the Stack:**
     ```bash
     docker compose up --build
     ```
 
-3.  **Setup Data:**
+4.  **Setup Data:**
     In a new terminal, run these commands to prepare your database:
     ```bash
     docker compose exec backend python manage.py migrate
@@ -106,7 +112,13 @@ Every push to the `main` branch triggers an automated deployment to **AWS EC2**:
 
 If you prefer to run the services without Docker:
 
-**Backend:**
+1.  **Environment Setup (Critical):**
+```bash
+    Backend: Copy backend/.env.example to backend/.env
+    Frontend: Copy frontend/.env.example to frontend/.env
+```
+
+2.  **Backend:**
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -115,7 +127,7 @@ python manage.py ingest_data
 python manage.py runserver
 ```
 
-**Frontend:**
+3.  **Frontend:**
 ```bash
 cd frontend
 npm install
